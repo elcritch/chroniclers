@@ -10,12 +10,12 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: jiro4989/setup-nim-action@v2
+      - uses: actions/checkout@v6
+      - uses: jiro4989/setup-nim-action@v2.3
         with:
           nim-version: '2.2.10'
       - name: Cache atlas deps
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: deps
           key: ${{ runner.os }}-atlas-${{ hashFiles('chroniclers.nimble') }}
