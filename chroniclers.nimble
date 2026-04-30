@@ -1,4 +1,4 @@
-version       = "0.2.0"
+version       = "0.2.1"
 author        = "Jaremy Creechley"
 description   = "Compile-time selectable structured logging facade for Nim"
 license       = "BSD-2-Clause"

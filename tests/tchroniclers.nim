@@ -8,7 +8,7 @@ suite "chroniclers facade":
       status = 200
       elapsedMs = 12.5
 
-    trace "request trace", route="/health", status=status
+    trace "request trace", route = "/health", status = status
     debug "request debug", route = "/health", status
     info "request complete", route = "/health", status = status
     notice "request noticed", route = "/health", elapsedMs = elapsedMs

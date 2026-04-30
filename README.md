@@ -20,8 +20,8 @@ nim c -d:chroniclersLogBackend=none app.nim
 ```
 
 If `chroniclersLogBackend` is not set, Chroniclers uses Chronicles when
-`feature.chroniclers.chronicles` is enabled and falls back to Nim's
-`std/logging` otherwise.
+`feature.chroniclers.chronicles` is enabled and compiles logging calls away
+otherwise.
 
 Custom backends can be selected with `chroniclersBackendModule`:
 

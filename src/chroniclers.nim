@@ -13,13 +13,13 @@
 ##   template info*(eventName: static[string], props: varargs[untyped])
 ##
 ## When the value is not specified, Chronicles is used when the package's
-## `chronicles` feature is enabled; otherwise Nim's `std/logging` is used.
+## `chronicles` feature is enabled; otherwise logging is compiled away.
 
 import std/macros
 
 const
   defaultBackend =
-    when defined(feature.chroniclers.chronicles): "chronicles" else: "std"
+    when defined(feature.chroniclers.chronicles): "chronicles" else: "none"
   chroniclersLogBackend* {.strdefine.} = defaultBackend
   chroniclersBackendModule* {.strdefine.} = ""
   selectedBackendModule =
