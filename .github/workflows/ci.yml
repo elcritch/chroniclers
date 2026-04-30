@@ -1,0 +1,29 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: jiro4989/setup-nim-action@v2
+        with:
+          nim-version: '2.2.10'
+      - name: Cache atlas deps
+        uses: actions/cache@v4
+        with:
+          path: deps
+          key: ${{ runner.os }}-atlas-${{ hashFiles('chroniclers.nimble') }}
+          restore-keys: |
+            ${{ runner.os }}-atlas-
+      - run: echo "$HOME/.nimble/bin" >> "$GITHUB_PATH"
+      - run: cd /tmp/ && nimble install "https://github.com/nim-lang/atlas@#head"
+      - run: atlas -v
+      - run: atlas init
+      - run: atlas install --feature:chronicles
+      - run: nim test
