@@ -1,15 +1,13 @@
-import std/[os, strutils]
+import std/os
 
 switch("mm", "arc")
 switch("threads", "on")
 
 task test, "run unit tests":
-  for testFile in listFiles("tests/"):
-    if testFile.endsWith(".nim") and testFile.splitFile().name.startsWith("t"):
-      if testFile.splitFile().name == "tchroniclers":
-        for backend in ["chronicles", "std", "none"]:
-          exec(
-            "nim c -r -d:chroniclersLogBackend=" & backend & " " & quoteShell(testFile)
-          )
-      else:
-        exec("nim c -r " & quoteShell(testFile))
+  exec("nim c -r -d:chroniclersLogBackend=chronicles " & quoteShell("tests/tchroniclers.nim"))
+  exec("nim c -r -d:chroniclersLogBackend=std " & quoteShell("tests/tchroniclers.nim"))
+  exec("nim c -r -d:chroniclersLogBackend=none " & quoteShell("tests/tchroniclers.nim"))
+  exec(
+    "nim c -r -d:chroniclersLogBackend=none -d:chroniclersBackendModule=tests/custom_backend " &
+      quoteShell("tests/tcustom_backend.nim")
+  )

@@ -5,7 +5,13 @@
 ##
 ##   info "request complete", route = "/items/42", status = 200
 ##
-## Select a backend with `-d:chroniclersLogBackend=chronicles|std|none`.
+## Select a built-in backend with `-d:chroniclersLogBackend=chronicles|std|none`.
+## To provide a custom backend, set `-d:chroniclersBackendModule=some/module`.
+## Custom backends must export templates named after the supported log levels
+## with this shape:
+##
+##   template info*(eventName: static[string], props: varargs[untyped])
+##
 ## When the value is not specified, Chronicles is used when the package's
 ## `chronicles` feature is enabled; otherwise Nim's `std/logging` is used.
 
@@ -15,102 +21,49 @@ const
   defaultBackend =
     when defined(feature.chroniclers.chronicles): "chronicles" else: "std"
   chroniclersLogBackend* {.strdefine.} = defaultBackend
-
-when chroniclersLogBackend == "chronicles":
-  import chronicles as chroniclesApi
-  export chroniclesApi except debug, error, fatal, info, log, notice, trace, warn
-elif chroniclersLogBackend == "std":
-  import std/logging as stdLogging
-  export stdLogging except debug, error, fatal, info, log, notice, warn
-elif chroniclersLogBackend == "none":
-  discard
-else:
-  {.error: "Unsupported chroniclersLogBackend. Use chronicles, std, or none.".}
-
-macro flattenLogMessage(eventName: static[string], props: varargs[untyped]): untyped =
-  ## Turns structured fields into a plain single-line message for non-structured
-  ## logging backends.
-  let msg = genSym(nskVar, "msg")
-  result = newStmtList()
-  result.add quote do:
-    var `msg` = `eventName`
-
-  for prop in props:
-    case prop.kind
-    of nnkAsgn, nnkExprEqExpr:
-      let key = $prop[0]
-      let value = prop[1]
-      result.add quote do:
-        `msg`.add(" ")
-        `msg`.add(`key`)
-        `msg`.add("=")
-        `msg`.add($`value`)
-    of nnkIdent, nnkSym:
-      let key = $prop
-      result.add quote do:
-        `msg`.add(" ")
-        `msg`.add(`key`)
-        `msg`.add("=")
-        `msg`.add($`prop`)
+  chroniclersBackendModule* {.strdefine.} = ""
+  selectedBackendModule =
+    when chroniclersBackendModule.len > 0:
+      chroniclersBackendModule
+    elif chroniclersLogBackend == "chronicles":
+      "chroniclers/backends/chronicles_backend"
+    elif chroniclersLogBackend == "std":
+      "chroniclers/backends/std_backend"
+    elif chroniclersLogBackend == "none":
+      "chroniclers/backends/none_backend"
     else:
-      result.add quote do:
-        `msg`.add(" ")
-        `msg`.add($`prop`)
+      {.
+        error:
+          "Unsupported chroniclersLogBackend. Use chronicles, std, none, or set chroniclersBackendModule."
+      .}
 
-  result.add msg
+macro importBackend(modulePath: static[string]): untyped =
+  for ch in modulePath:
+    if not (ch in {'a' .. 'z', 'A' .. 'Z', '0' .. '9', '_', '/'}):
+      error("Invalid chroniclersBackendModule path: " & modulePath)
+
+  parseStmt("import " & modulePath & " as chroniclersBackend")
+
+importBackend(selectedBackendModule)
+export chroniclersBackend except debug, error, fatal, info, log, notice, trace, warn
 
 template trace*(eventName: static[string], props: varargs[untyped]) =
-  when chroniclersLogBackend == "chronicles":
-    chroniclesApi.trace eventName, props
-  elif chroniclersLogBackend == "std":
-    stdLogging.debug(flattenLogMessage(eventName, props))
-  else:
-    discard
+  chroniclersBackend.trace eventName, props
 
 template debug*(eventName: static[string], props: varargs[untyped]) =
-  when chroniclersLogBackend == "chronicles":
-    chroniclesApi.debug eventName, props
-  elif chroniclersLogBackend == "std":
-    stdLogging.debug(flattenLogMessage(eventName, props))
-  else:
-    discard
+  chroniclersBackend.debug eventName, props
 
 template info*(eventName: static[string], props: varargs[untyped]) =
-  when chroniclersLogBackend == "chronicles":
-    chroniclesApi.info eventName, props
-  elif chroniclersLogBackend == "std":
-    stdLogging.info(flattenLogMessage(eventName, props))
-  else:
-    discard
+  chroniclersBackend.info eventName, props
 
 template notice*(eventName: static[string], props: varargs[untyped]) =
-  when chroniclersLogBackend == "chronicles":
-    chroniclesApi.notice eventName, props
-  elif chroniclersLogBackend == "std":
-    stdLogging.notice(flattenLogMessage(eventName, props))
-  else:
-    discard
+  chroniclersBackend.notice eventName, props
 
 template warn*(eventName: static[string], props: varargs[untyped]) =
-  when chroniclersLogBackend == "chronicles":
-    chroniclesApi.warn eventName, props
-  elif chroniclersLogBackend == "std":
-    stdLogging.warn(flattenLogMessage(eventName, props))
-  else:
-    discard
+  chroniclersBackend.warn eventName, props
 
 template error*(eventName: static[string], props: varargs[untyped]) =
-  when chroniclersLogBackend == "chronicles":
-    chroniclesApi.error eventName, props
-  elif chroniclersLogBackend == "std":
-    stdLogging.error(flattenLogMessage(eventName, props))
-  else:
-    discard
+  chroniclersBackend.error eventName, props
 
 template fatal*(eventName: static[string], props: varargs[untyped]) =
-  when chroniclersLogBackend == "chronicles":
-    chroniclesApi.fatal eventName, props
-  elif chroniclersLogBackend == "std":
-    stdLogging.fatal(flattenLogMessage(eventName, props))
-  else:
-    discard
+  chroniclersBackend.fatal eventName, props
