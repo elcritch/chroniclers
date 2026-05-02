@@ -22,7 +22,7 @@ suite "chroniclers facade":
     proc failIfEvaluated(): string =
       raise newException(AssertionDefect, "log field was evaluated")
 
-    when chroniclersLogBackend == "none":
+    when logBackend == "none":
       info "skipped", value = failIfEvaluated()
 
     check true

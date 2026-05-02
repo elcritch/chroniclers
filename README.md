@@ -49,14 +49,17 @@ Chroniclers ships with support for [Chronicles](https://github.com/status-im/nim
 Select the backend with compile time flags:
 
 ```sh
-nim c -d:chroniclersLogBackend=chronicles app.nim
-nim c -d:chroniclersLogBackend=std app.nim
-nim c -d:chroniclersLogBackend=none app.nim
+nim c -d:chroniclers.logBackend=chronicles app.nim
+nim c -d:chroniclers.logBackend=std app.nim
+nim c -d:chroniclers.logBackend=none app.nim
 ```
 
-If `chroniclersLogBackend` is not set, Chroniclers uses Chronicles when
+If `chroniclers.logBackend` is not set, Chroniclers uses Chronicles when
 `feature.chroniclers.chronicles` is enabled and compiles logging calls away
 otherwise.
+
+The older `chroniclersLogBackend` define and exported constant are still
+accepted as fallbacks.
 
 ### Custom Backends
 
@@ -102,4 +105,3 @@ Run tests:
 ```sh
 nim test
 ```
-

@@ -6,3 +6,4 @@
 - Add Chronicles-style structured logging templates for common log levels.
 - Add `chroniclersBackendModule` for user-provided backend adapters.
 - Default to the `none` backend unless the Chronicles feature is enabled.
+- Prefer `chroniclers.logBackend`, while keeping `chroniclersLogBackend` as a fallback.

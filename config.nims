@@ -8,10 +8,11 @@ task test, "run unit tests":
     "nim c -r --skipParentCfg:on --skipProjCfg:on --path:src --path:tests " &
       quoteShell("tests/tdefault_backend.nim")
   )
-  exec("nim c -r -d:chroniclersLogBackend=chronicles " & quoteShell("tests/tchroniclers.nim"))
+  exec("nim c -r -d:chroniclers.logBackend=chronicles " & quoteShell("tests/tchroniclers.nim"))
+  exec("nim c -r -d:chroniclers.logBackend=std " & quoteShell("tests/tchroniclers.nim"))
+  exec("nim c -r -d:chroniclers.logBackend=none " & quoteShell("tests/tchroniclers.nim"))
   exec("nim c -r -d:chroniclersLogBackend=std " & quoteShell("tests/tchroniclers.nim"))
-  exec("nim c -r -d:chroniclersLogBackend=none " & quoteShell("tests/tchroniclers.nim"))
   exec(
-    "nim c -r -d:chroniclersLogBackend=none -d:chroniclersBackendModule=tests/custom_backend " &
+    "nim c -r -d:chroniclers.logBackend=none -d:chroniclersBackendModule=tests/custom_backend " &
       quoteShell("tests/tcustom_backend.nim")
   )

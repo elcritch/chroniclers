@@ -5,7 +5,7 @@
 ##
 ##   info "request complete", route = "/items/42", status = 200
 ##
-## Select a built-in backend with `-d:chroniclersLogBackend=chronicles|std|none`.
+## Select a built-in backend with `-d:chroniclers.logBackend=chronicles|std|none`.
 ## To provide a custom backend, set `-d:chroniclersBackendModule=some/module`.
 ## Custom backends must export templates named after the supported log levels
 ## with this shape:
@@ -20,21 +20,24 @@ import std/macros
 const
   defaultBackend =
     when defined(feature.chroniclers.chronicles): "chronicles" else: "none"
-  chroniclersLogBackend* {.strdefine.} = defaultBackend
+  legacyLogBackend {.strdefine: "chroniclersLogBackend".} = ""
+  logBackend* {.strdefine: "chroniclers.logBackend".} =
+    when legacyLogBackend.len > 0: legacyLogBackend else: defaultBackend
+  chroniclersLogBackend* = logBackend
   chroniclersBackendModule* {.strdefine.} = ""
   selectedBackendModule =
     when chroniclersBackendModule.len > 0:
       chroniclersBackendModule
-    elif chroniclersLogBackend == "chronicles":
+    elif logBackend == "chronicles":
       "chroniclers/backends/chronicles_backend"
-    elif chroniclersLogBackend == "std":
+    elif logBackend == "std":
       "chroniclers/backends/std_backend"
-    elif chroniclersLogBackend == "none":
+    elif logBackend == "none":
       "chroniclers/backends/none_backend"
     else:
       {.
         error:
-          "Unsupported chroniclersLogBackend. Use chronicles, std, none, or set chroniclersBackendModule."
+          "Unsupported chroniclers.logBackend. Use chronicles, std, none, or set chroniclersBackendModule."
       .}
 
 macro importBackend(modulePath: static[string]): untyped =
