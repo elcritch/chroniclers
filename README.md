@@ -11,7 +11,42 @@ info "request complete", route = "/items/42", status = 200, elapsedMs = 12.5
 warn "request slow", route = "/items/42", elapsedMs = 450
 ```
 
-Select the backend with:
+## Installtion
+
+The normal Atlas/Nimble setup:
+
+```sh
+atlas use chroniclers
+```
+
+For applications it's handy to use the feature pattern to select your logger: 
+
+```nim
+requires "chroniclers[chronicles] >= 0.2.1"
+```
+
+### Using Install Features
+
+For "middleware" type projects you can pass on the logging option like: 
+
+```
+requires "chroniclers"
+feature "chronicles":
+    requires "chroniclers[chronicles] >= 0.2.1"
+```
+
+Then users can use your project like:
+
+```
+requires "myawesomelib[chronicles]"
+```
+
+
+## Backends
+
+Chroniclers ships with support for [Chronicles](https://github.com/status-im/nim-chronicles) and Nim's [std/logging](https://nim-lang.org/docs/logging.html). It defaults to an empty `none` backend.
+
+Select the backend with compile time flags:
 
 ```sh
 nim c -d:chroniclersLogBackend=chronicles app.nim
@@ -22,6 +57,8 @@ nim c -d:chroniclersLogBackend=none app.nim
 If `chroniclersLogBackend` is not set, Chroniclers uses Chronicles when
 `feature.chroniclers.chronicles` is enabled and compiles logging calls away
 otherwise.
+
+### Custom Backends
 
 Custom backends can be selected with `chroniclersBackendModule`:
 
@@ -65,3 +102,4 @@ Run tests:
 ```sh
 nim test
 ```
+
