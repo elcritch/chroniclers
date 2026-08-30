@@ -19,7 +19,10 @@ import std/macros
 
 const
   defaultBackend =
-    when defined(feature.chroniclers.chronicles): "chronicles" else: "none"
+    when defined(features.chroniclers.chronicles) or defined(feature.chroniclers.chronicles):
+      "chronicles"
+    else:
+      "none"
   legacyLogBackend {.strdefine: "chroniclersLogBackend".} = ""
   logBackend* {.strdefine: "chroniclers.logBackend".} =
     when legacyLogBackend.len > 0: legacyLogBackend else: defaultBackend
