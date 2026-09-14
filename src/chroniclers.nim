@@ -49,14 +49,22 @@ static:
   echo "defined chroniclersBackendModule: ", $defined(chroniclersBackendModule)
 
 when defined(chroniclersBackendModule):
+  static: echo "BRANCH1"
   importBackend(chroniclersBackendModule)
+elif chroniclers.logBackend == "none":
+  static: echo "BRANCH1a"
+  import ./chroniclers/backends/none_backend as chroniclersBackend
 elif defined(features.chroniclers.chronicles):
+  static: echo "BRANCH2"
   import ./chroniclers/backends/chronicles_backend as chroniclersBackend
 elif defined(features.chroniclers.std):
+  static: echo "BRANCH3"
   import ./chroniclers/backends/std_backend as chroniclersBackend
 elif defined(chroniclers.logBackend):
+  static: echo "BRANCH4"
   importBackend(selectedBackendModule)
 else:
+  static: echo "BRANCH5"
   import ./chroniclers/backends/none_backend as chroniclersBackend
 
 export chroniclersBackend except debug, error, fatal, info, log, notice, trace, warn
