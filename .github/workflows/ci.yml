@@ -11,9 +11,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-      - uses: jiro4989/setup-nim-action@v2.3
-        with:
-          nim-version: '2.2.10'
+
+      - name: Install latest Atlas and set up Nim
+      run: |
+        mkdir -p "$HOME/.local/bin"
+        echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+        curl -fsSL https://raw.githubusercontent.com/nim-lang/atlas/HEAD/install.sh | \
+          ATLAS_INSTALL_DIR="$HOME/.local/bin" bash -
+        "$HOME/.local/bin/atlas" env "${{ matrix.nimversion }}" --binary --github-path
+
       - name: Cache atlas deps
         uses: actions/cache@v5
         with:
@@ -21,8 +27,7 @@ jobs:
           key: ${{ runner.os }}-atlas-${{ hashFiles('chroniclers.nimble') }}
           restore-keys: |
             ${{ runner.os }}-atlas-
-      - run: echo "$HOME/.nimble/bin" >> "$GITHUB_PATH"
-      - run: cd /tmp/ && nimble install "https://github.com/nim-lang/atlas@#head"
+
       - run: atlas -v
       - run: atlas init
       - run: atlas install --feature:chronicles
