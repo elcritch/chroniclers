@@ -14,7 +14,6 @@ jobs:
 
       - name: Install latest Atlas and set up Nim
         run: |
-          mkdir -p "$HOME/.local/bin"
           curl -fsSL https://raw.githubusercontent.com/nim-lang/atlas/HEAD/install.sh | \
             ATLAS_INSTALL_DIR="$HOME/.local/bin" bash -
           "$HOME/.local/bin/atlas" env 2.2.10 --binary --github-path
