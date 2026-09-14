@@ -18,7 +18,7 @@ jobs:
           echo "$HOME/.local/bin" >> "$GITHUB_PATH"
           curl -fsSL https://raw.githubusercontent.com/nim-lang/atlas/HEAD/install.sh | \
             ATLAS_INSTALL_DIR="$HOME/.local/bin" bash -
-          "$HOME/.local/bin/atlas" env "${{ matrix.nimversion }}" --binary --github-path
+          "$HOME/.local/bin/atlas" env 2.2.12 --binary --github-path
 
       - name: Cache atlas deps
         uses: actions/cache@v5
