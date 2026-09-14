@@ -21,50 +21,28 @@ const
   logBackend {.strdefine: "chroniclers.logBackend".} = "none"
   chroniclersLogBackend* = logBackend
   chroniclersBackendModule* {.strdefine.} = ""
-  selectedBackendModule =
-    when chroniclersBackendModule.len > 0:
-      chroniclersBackendModule
-    elif logBackend == "chronicles":
-      "chroniclers/backends/chronicles_backend"
-    elif logBackend == "std":
-      "chroniclers/backends/std_backend"
-    elif logBackend == "none":
-      "chroniclers/backends/none_backend"
-    else:
-      {.
-        error:
-          "Unsupported chroniclers.logBackend. Use chronicles, std, none, or set chroniclersBackendModule."
-      .}
 
 macro importBackend(modulePath: static[string]): untyped =
+
   for ch in modulePath:
     if not (ch in {'a' .. 'z', 'A' .. 'Z', '0' .. '9', '_', '/'}):
       error("Invalid chroniclersBackendModule path: " & modulePath)
 
   parseStmt("import " & modulePath & " as chroniclersBackend")
 
-static:
-  echo "selectedBackendModule: ", selectedBackendModule
-  echo "chroniclersBackendModule: ", chroniclersBackendModule
-  echo "defined chroniclersBackendModule: ", $defined(chroniclersBackendModule)
-
 when defined(chroniclersBackendModule):
-  static: echo "BRANCH1"
   importBackend(chroniclersBackendModule)
 elif chroniclers.logBackend == "none":
-  static: echo "BRANCH1a"
   import ./chroniclers/backends/none_backend as chroniclersBackend
+elif chroniclers.logBackend == "std":
+  import ./chroniclers/backends/std_backend as chroniclersBackend
+elif chroniclers.logBackend == "chronicles":
+  import ./chroniclers/backends/chronicles_backend as chroniclersBackend
 elif defined(features.chroniclers.chronicles):
-  static: echo "BRANCH2"
   import ./chroniclers/backends/chronicles_backend as chroniclersBackend
 elif defined(features.chroniclers.std):
-  static: echo "BRANCH3"
   import ./chroniclers/backends/std_backend as chroniclersBackend
-elif defined(chroniclers.logBackend):
-  static: echo "BRANCH4"
-  importBackend(selectedBackendModule)
 else:
-  static: echo "BRANCH5"
   import ./chroniclers/backends/none_backend as chroniclersBackend
 
 export chroniclersBackend except debug, error, fatal, info, log, notice, trace, warn
