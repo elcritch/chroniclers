@@ -4,8 +4,7 @@ import chroniclers
 
 suite "chroniclers default backend":
   test "default backend is none without chronicles feature":
-    check logBackend == "none"
-    check chroniclersLogBackend == logBackend
+    check chroniclersLogBackend == "none"
 
   test "default backend does not evaluate fields":
     proc failIfEvaluated(): string =

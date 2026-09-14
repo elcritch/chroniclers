@@ -18,14 +18,7 @@
 import std/macros
 
 const
-  defaultBackend =
-    when defined(features.chroniclers.chronicles) or defined(feature.chroniclers.chronicles):
-      "chronicles"
-    else:
-      "none"
-  legacyLogBackend {.strdefine: "chroniclersLogBackend".} = ""
-  logBackend* {.strdefine: "chroniclers.logBackend".} =
-    when legacyLogBackend.len > 0: legacyLogBackend else: defaultBackend
+  logBackend {.strdefine: "chroniclers.logBackend".} = "none"
   chroniclersLogBackend* = logBackend
   chroniclersBackendModule* {.strdefine.} = ""
   selectedBackendModule =
@@ -50,7 +43,22 @@ macro importBackend(modulePath: static[string]): untyped =
 
   parseStmt("import " & modulePath & " as chroniclersBackend")
 
-importBackend(selectedBackendModule)
+static:
+  echo "selectedBackendModule: ", selectedBackendModule
+  echo "chroniclersBackendModule: ", chroniclersBackendModule
+  echo "defined chroniclersBackendModule: ", $defined(chroniclersBackendModule)
+
+when defined(chroniclersBackendModule):
+  importBackend(chroniclersBackendModule)
+elif defined(features.chroniclers.chronicles):
+  import ./chroniclers/backends/chronicles_backend as chroniclersBackend
+elif defined(features.chroniclers.std):
+  import ./chroniclers/backends/std_backend as chroniclersBackend
+elif defined(chroniclers.logBackend):
+  importBackend(selectedBackendModule)
+else:
+  import ./chroniclers/backends/none_backend as chroniclersBackend
+
 export chroniclersBackend except debug, error, fatal, info, log, notice, trace, warn
 
 template trace*(eventName: static[string], props: varargs[untyped]) =
