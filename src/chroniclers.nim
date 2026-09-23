@@ -18,6 +18,8 @@
 ## Without a backend flag, the `chronicles` feature takes precedence over
 ## `std`, followed by the empty backend.
 
+from std/macros import warning
+
 when defined(chroniclers.logBackend):
   {.
     error:
@@ -30,22 +32,24 @@ when defined(chroniclersLogBackend):
       "chroniclersLogBackend is no longer supported; use -d:chroniclers.logBackendStd, -d:chroniclers.logBackendChronicles, -d:chroniclers.logBackendCustom, or -d:chroniclers.logBackendNone"
   .}
 
-when (
-  defined(chroniclers.logBackendChronicles) and (
-    defined(chroniclers.logBackendStd) or defined(chroniclers.logBackendCustom) or
-    defined(chroniclers.logBackendNone)
-  )
-) or (
-  defined(chroniclers.logBackendStd) and
-  (defined(chroniclers.logBackendCustom) or defined(chroniclers.logBackendNone))
-) or (defined(chroniclers.logBackendCustom) and defined(chroniclers.logBackendNone)):
-  {.error: "Select only one chroniclers.logBackend* flag".}
-
 when defined(chroniclersBackendModule):
   {.
     error:
       "chroniclersBackendModule is no longer supported; use -d:chroniclers.logBackendCustom and patchFile(\"chroniclers\", \"custom_backend\", \"path/to/backend\") in your config.nims"
   .}
+
+static:
+  var cnt = 0
+  if defined(chroniclers.logBackendChronicles):
+    cnt.inc()
+  if defined(chroniclers.logBackendStd):
+    cnt.inc()
+  if defined(chroniclers.logBackendCustom):
+    cnt.inc()
+  if defined(chroniclers.logBackendNone):
+    cnt.inc()
+  if cnt > 1:
+    warning("Select only one chroniclers.logBackend* flag")
 
 when defined(chroniclers.logBackendChronicles):
   const chroniclersLogBackend* = "chronicles"
