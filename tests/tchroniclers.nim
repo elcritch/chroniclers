@@ -2,7 +2,12 @@ import std/unittest
 
 import chroniclers
 
+const expectedBackend {.strdefine.} = ""
+
 suite "chroniclers facade":
+  test "explicit backend selection wins over features":
+    check chroniclersLogBackend == expectedBackend
+
   test "structured logging calls compile":
     let
       status = 200

@@ -22,7 +22,7 @@ atlas use chroniclers
 For applications it's handy to use the feature pattern to select your logger: 
 
 ```nim
-requires "chroniclers[chronicles] >= 0.2.1"
+requires "chroniclers[chronicles] >= 0.6.1"
 ```
 
 ### Using Install Features
@@ -32,7 +32,7 @@ For "middleware" type projects you can pass on the logging option like:
 ```
 requires "chroniclers"
 feature "chronicles":
-    requires "chroniclers[chronicles] >= 0.2.1"
+    requires "chroniclers[chronicles] >= 0.6.1"
 ```
 
 Then users can use your project like:
@@ -57,6 +57,8 @@ nim c -d:chroniclers.logBackend=none app.nim
 If `chroniclers.logBackend` is not set, Chroniclers uses Chronicles when
 `feature.chroniclers.chronicles` is enabled and compiles logging calls away
 otherwise.
+An explicit `-d:chroniclers.logBackend=none` still disables logging when the
+feature is enabled. `chroniclersLogBackend` reports the selected built-in backend.
 
 The older `chroniclersLogBackend` define and exported constant are still
 accepted as fallbacks.

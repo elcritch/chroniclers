@@ -18,12 +18,22 @@
 import std/macros
 
 const
-  logBackend {.strdefine: "chroniclers.logBackend".} = "none"
-  chroniclersLogBackend* = logBackend
+  logBackend {.strdefine: "chroniclers.logBackend".} = ""
+  legacyLogBackend {.strdefine: "chroniclersLogBackend".} = ""
   chroniclersBackendModule* {.strdefine.} = ""
 
-macro importBackend(modulePath: static[string]): untyped =
+when logBackend.len > 0:
+  const chroniclersLogBackend* = logBackend
+elif legacyLogBackend.len > 0:
+  const chroniclersLogBackend* = legacyLogBackend
+elif defined(features.chroniclers.chronicles):
+  const chroniclersLogBackend* = "chronicles"
+elif defined(features.chroniclers.std):
+  const chroniclersLogBackend* = "std"
+else:
+  const chroniclersLogBackend* = "none"
 
+macro importBackend(modulePath: static[string]): untyped =
   for ch in modulePath:
     if not (ch in {'a' .. 'z', 'A' .. 'Z', '0' .. '9', '_', '/'}):
       error("Invalid chroniclersBackendModule path: " & modulePath)
@@ -32,18 +42,14 @@ macro importBackend(modulePath: static[string]): untyped =
 
 when defined(chroniclersBackendModule):
   importBackend(chroniclersBackendModule)
-elif chroniclers.logBackend == "none":
+elif chroniclersLogBackend == "none":
   import ./chroniclers/backends/none_backend as chroniclersBackend
-elif chroniclers.logBackend == "std":
+elif chroniclersLogBackend == "std":
   import ./chroniclers/backends/std_backend as chroniclersBackend
-elif chroniclers.logBackend == "chronicles":
+elif chroniclersLogBackend == "chronicles":
   import ./chroniclers/backends/chronicles_backend as chroniclersBackend
-elif defined(features.chroniclers.chronicles):
-  import ./chroniclers/backends/chronicles_backend as chroniclersBackend
-elif defined(features.chroniclers.std):
-  import ./chroniclers/backends/std_backend as chroniclersBackend
 else:
-  import ./chroniclers/backends/none_backend as chroniclersBackend
+  {.error: "Unknown chroniclers logging backend: " & chroniclersLogBackend.}
 
 export chroniclersBackend except debug, error, fatal, info, log, notice, trace, warn
 
