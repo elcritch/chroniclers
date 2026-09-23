@@ -46,21 +46,24 @@ requires "myawesomelib[chronicles]"
 
 Chroniclers ships with support for [Chronicles](https://github.com/status-im/nim-chronicles) and Nim's [std/logging](https://nim-lang.org/docs/logging.html). It defaults to an empty `none` backend.
 
-Select the backend with compile time flags:
+Select a backend with a compile-time flag:
 
 ```sh
-nim c -d:chroniclers.logBackend=chronicles app.nim
-nim c -d:chroniclers.logBackend=std app.nim
-nim c -d:chroniclers.logBackend=none app.nim
-nim c -d:chroniclers.logBackend=custom app.nim
+nim c -d:chroniclers.logBackendChronicles app.nim
+nim c -d:chroniclers.logBackendStd app.nim
+nim c -d:chroniclers.logBackendNone app.nim
+nim c -d:chroniclers.logBackendCustom app.nim
 ```
 
-Selection order is `chroniclers.logBackend`, `features.chroniclers.chronicles`,
-`features.chroniclers.std`, the older `chroniclersLogBackend` define, then the
-empty `none` backend. The legacy define is used only when neither feature is
-enabled.
-An explicit `-d:chroniclers.logBackend=none` still disables logging when the
-feature is enabled. `chroniclersLogBackend` reports the selected backend.
+Set only one backend flag. Backend flags take precedence over package features, so
+`-d:chroniclers.logBackendNone` disables logging even when Chronicles is
+enabled. Without a backend flag, `features.chroniclers.chronicles` takes
+precedence over `features.chroniclers.std`.
+
+The old string selectors `-d:chroniclers.logBackend=std` and
+`-d:chroniclersLogBackend=std` now produce compile errors. With no selection,
+logging uses the empty `none` backend. The exported `chroniclersLogBackend`
+constant reports the selected backend.
 
 ### Custom Backends
 
@@ -72,8 +75,8 @@ patchFile("chroniclers", "custom_backend", "myapp/log_backend")
 ```
 
 The replacement path is relative to the `config.nims` file. Then compile with
-`-d:chroniclers.logBackend=custom`. The unpatched module reports an error with
-the setup instructions.
+`-d:chroniclers.logBackendCustom`. The unpatched module reports an error
+with the setup instructions.
 
 The backend module must export templates for each supported level:
 

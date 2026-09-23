@@ -2,5 +2,5 @@
 
 {.
   error:
-    "The chroniclers custom backend is empty. Add patchFile(\"chroniclers\", \"custom_backend\", \"path/to/backend\") to your application's config.nims to replace it with your implementation."
+    "The chroniclers custom backend is empty. Use -d:chroniclers.logBackendCustom and add patchFile(\"chroniclers\", \"custom_backend\", \"path/to/backend\") to your application's config.nims."
 .}

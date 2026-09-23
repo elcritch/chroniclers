@@ -13,37 +13,22 @@ task test, "run unit tests":
       "-d:features.chroniclers.std -d:expectedBackend=std " &
       quoteShell("tests/tchroniclers.nim")
   )
-  exec(
-    "nim c -r --skipParentCfg:on --skipProjCfg:on --path:src --path:tests " &
-      "-d:features.chroniclers.std -d:chroniclersLogBackend=none " &
-      "-d:expectedBackend=std " &
-      quoteShell("tests/tchroniclers.nim")
-  )
   exec("nim c -r " & quoteShell("tests/tfeature_backend.nim"))
   exec("nim c -r -d:features.chroniclers.std " & quoteShell("tests/tfeature_backend.nim"))
   exec(
-    "nim c -r -d:chroniclers.logBackend=chronicles -d:expectedBackend=chronicles " &
+    "nim c -r -d:chroniclers.logBackendChronicles " &
+      "-d:expectedBackend=chronicles " &
       quoteShell("tests/tchroniclers.nim")
   )
   exec(
-    "nim c -r -d:chroniclers.logBackend=std -d:chroniclersLogBackend=none " &
-      "-d:expectedBackend=std " &
+    "nim c -r -d:chroniclers.logBackendStd -d:expectedBackend=std " &
       quoteShell("tests/tchroniclers.nim")
   )
   exec(
-    "nim c -r -d:chroniclers.logBackend=none -d:expectedBackend=none " &
+    "nim c -r -d:chroniclers.logBackendNone -d:expectedBackend=none " &
       quoteShell("tests/tchroniclers.nim")
   )
   exec(
-    "nim c -r --skipParentCfg:on --skipProjCfg:on --path:src --path:tests " &
-      "-d:chroniclersLogBackend=std -d:expectedBackend=std " &
-      quoteShell("tests/tchroniclers.nim")
-  )
-  exec(
-    "nim c -r -d:chroniclersLogBackend=std -d:expectedBackend=chronicles " &
-      quoteShell("tests/tchroniclers.nim")
-  )
-  exec(
-    "nim c -r -d:chroniclers.logBackend=custom " &
+    "nim c -r -d:chroniclers.logBackendCustom " &
       quoteShell("tests/tcustom_backend.nim")
   )
