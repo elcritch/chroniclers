@@ -5,44 +5,72 @@
 ##
 ##   info "request complete", route = "/items/42", status = 200
 ##
-## Select a built-in backend with `-d:chroniclers.logBackend=chronicles|std|none`.
-## To provide a custom backend, set `-d:chroniclersBackendModule=some/module`.
+## Select a backend with `-d:chroniclers.logBackendChronicles`,
+## `-d:chroniclers.logBackendStd`, `-d:chroniclers.logBackendCustom`,
+## or `-d:chroniclers.logBackendNone`.
+## To provide a custom backend, select the custom flag and replace
+## `chroniclers/backends/custom_backend` with `patchFile` in your config.nims.
 ## Custom backends must export templates named after the supported log levels
 ## with this shape:
 ##
 ##   template info*(eventName: static[string], props: varargs[untyped])
 ##
-## When the value is not specified, Chronicles is used when the package's
-## `chronicles` feature is enabled; otherwise logging is compiled away.
+## Without a backend flag, the `chronicles` feature takes precedence over
+## `std`, followed by the empty backend.
 
-import std/macros
+from std/macros import warning
 
-const
-  logBackend {.strdefine: "chroniclers.logBackend".} = "none"
-  chroniclersLogBackend* = logBackend
-  chroniclersBackendModule* {.strdefine.} = ""
+when defined(chroniclers.logBackend):
+  {.
+    error:
+      "chroniclers.logBackend is no longer supported; use -d:chroniclers.logBackendStd, -d:chroniclers.logBackendChronicles, -d:chroniclers.logBackendCustom, or -d:chroniclers.logBackendNone"
+  .}
 
-macro importBackend(modulePath: static[string]): untyped =
-
-  for ch in modulePath:
-    if not (ch in {'a' .. 'z', 'A' .. 'Z', '0' .. '9', '_', '/'}):
-      error("Invalid chroniclersBackendModule path: " & modulePath)
-
-  parseStmt("import " & modulePath & " as chroniclersBackend")
+when defined(chroniclersLogBackend):
+  {.
+    error:
+      "chroniclersLogBackend is no longer supported; use -d:chroniclers.logBackendStd, -d:chroniclers.logBackendChronicles, -d:chroniclers.logBackendCustom, or -d:chroniclers.logBackendNone"
+  .}
 
 when defined(chroniclersBackendModule):
-  importBackend(chroniclersBackendModule)
-elif chroniclers.logBackend == "none":
-  import ./chroniclers/backends/none_backend as chroniclersBackend
-elif chroniclers.logBackend == "std":
-  import ./chroniclers/backends/std_backend as chroniclersBackend
-elif chroniclers.logBackend == "chronicles":
+  {.
+    error:
+      "chroniclersBackendModule is no longer supported; use -d:chroniclers.logBackendCustom and patchFile(\"chroniclers\", \"custom_backend\", \"path/to/backend\") in your config.nims"
+  .}
+
+static:
+  var cnt = 0
+  if defined(chroniclers.logBackendChronicles):
+    cnt.inc()
+  if defined(chroniclers.logBackendStd):
+    cnt.inc()
+  if defined(chroniclers.logBackendCustom):
+    cnt.inc()
+  if defined(chroniclers.logBackendNone):
+    cnt.inc()
+  if cnt > 1:
+    warning("Select only one chroniclers.logBackend* flag")
+
+when defined(chroniclers.logBackendChronicles):
+  const chroniclersLogBackend* = "chronicles"
   import ./chroniclers/backends/chronicles_backend as chroniclersBackend
+elif defined(chroniclers.logBackendStd):
+  const chroniclersLogBackend* = "std"
+  import ./chroniclers/backends/std_backend as chroniclersBackend
+elif defined(chroniclers.logBackendCustom):
+  const chroniclersLogBackend* = "custom"
+  import ./chroniclers/backends/custom_backend as chroniclersBackend
+elif defined(chroniclers.logBackendNone):
+  const chroniclersLogBackend* = "none"
+  import ./chroniclers/backends/none_backend as chroniclersBackend
 elif defined(features.chroniclers.chronicles):
+  const chroniclersLogBackend* = "chronicles"
   import ./chroniclers/backends/chronicles_backend as chroniclersBackend
 elif defined(features.chroniclers.std):
+  const chroniclersLogBackend* = "std"
   import ./chroniclers/backends/std_backend as chroniclersBackend
 else:
+  const chroniclersLogBackend* = "none"
   import ./chroniclers/backends/none_backend as chroniclersBackend
 
 export chroniclersBackend except debug, error, fatal, info, log, notice, trace, warn

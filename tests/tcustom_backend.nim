@@ -7,6 +7,9 @@ suite "custom chroniclers backend":
   setup:
     resetMessages()
 
+  test "custom backend is selected":
+    check chroniclersLogBackend == "custom"
+
   test "custom backend receives logging calls":
     let
       status = 200
@@ -31,7 +34,7 @@ suite "custom chroniclers backend":
         "fatal server stopped reason=test",
       ]
 
-  test "custom backend module overrides built-in backend selection":
+  test "replacement backend evaluates fields":
     proc fieldValue(): string =
       "evaluated"
 
