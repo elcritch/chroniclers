@@ -1,5 +1,13 @@
 # Changes
 
+## 0.7.0
+
+- Use direct imports for feature-selected backends and Nim's `patchFile` module
+  replacement for custom backends. The old `chroniclersBackendModule` define
+  now reports migration instructions.
+- Give the Chronicles and `std` feature flags precedence over the legacy
+  `chroniclersLogBackend` define when the primary backend override is unset.
+
 ## 0.6.1
 
 - Select Chronicles when the `chronicles` package feature is enabled, while

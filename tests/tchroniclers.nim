@@ -5,7 +5,7 @@ import chroniclers
 const expectedBackend {.strdefine.} = ""
 
 suite "chroniclers facade":
-  test "explicit backend selection wins over features":
+  test "selected backend matches expectation":
     check chroniclersLogBackend == expectedBackend
 
   test "structured logging calls compile":
